@@ -16,7 +16,7 @@ public interface ServiceApi {
      *
      * @return the order response
      */
-    @GET("data/2.5/forecast/city")
+    @GET("data/2.5/forecast")
     Call<ForecastModel> get5DaysForecast(@Query("id") int cityId,
                                          @Query("units") String metric,
                                          @Query("cnt") int cnt,

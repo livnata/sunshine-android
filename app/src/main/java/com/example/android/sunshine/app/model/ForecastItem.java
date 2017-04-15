@@ -3,9 +3,13 @@ package com.example.android.sunshine.app.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ForecastItem {
+public class ForecastItem implements Serializable {
+
+    private static final long serialVersionUID = 8788335108383812369L;
+
 
     @SerializedName("dt")
     @Expose

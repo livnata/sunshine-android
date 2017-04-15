@@ -1,5 +1,6 @@
 package com.example.android.sunshine.app;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -36,7 +37,7 @@ import retrofit2.Retrofit;
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<String[]> {
+        LoaderManager.LoaderCallbacks<String[]> ,IForecastItemActionListener {
 
     private static final String TAG = "ForecastFragment";
     //    String Static TAG = Class.
@@ -44,6 +45,8 @@ public class ForecastFragment extends Fragment implements
     WeatherRecyclerViewAdapter mWheatherAdapter;
     RecyclerView mRecyclerView;
     IForecastApi mIForecastApi;
+
+    String[] mForecastList = null;
     private static final int FORECAST_LOADER_ID = 100;
 
 
@@ -65,6 +68,7 @@ public class ForecastFragment extends Fragment implements
                              Bundle savedInstanceState) {
 
         View viewResult;
+
         setHasOptionsMenu(true);
 //        mIForecastApi = createProtocol();
 
@@ -78,14 +82,13 @@ public class ForecastFragment extends Fragment implements
 //        mArrayListDateTime.add(new DateTimeItem("Mon 6/23 - Sunny - 31/17"));
 
 
-        mWheatherAdapter = new WeatherRecyclerViewAdapter(getActivity(), mArrayListDateTime);
+        mWheatherAdapter = new WeatherRecyclerViewAdapter(getActivity(), this, mArrayListDateTime);
 
 //        RecyclerView mRecyclerView = new RecyclerView(mContext);
         mRecyclerView = (RecyclerView) viewResult.findViewById(R.id.recycler_view);
         mRecyclerView.setAdapter(mWheatherAdapter);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));// what is the perepes of the last parameter
-
         return viewResult;
     }
 
@@ -116,7 +119,7 @@ public class ForecastFragment extends Fragment implements
         }
         return super.onOptionsItemSelected(item);
     }
-
+// that will start the loadInBackground
     @Override
     public Loader<String[]> onCreateLoader(int id, Bundle args) {
         return new ForecastLoader(getContext(), 524901);
@@ -128,7 +131,8 @@ public class ForecastFragment extends Fragment implements
             for (String dayForecastStr : result) {
                 mArrayListDateTime.add(new DateTimeItem(dayForecastStr));
             }
-            mWheatherAdapter = new WeatherRecyclerViewAdapter(getContext(), mArrayListDateTime);
+            mForecastList=result;
+            mWheatherAdapter = new WeatherRecyclerViewAdapter(getContext(),this, mArrayListDateTime);
             mRecyclerView.setAdapter(mWheatherAdapter);
         } else {
             Toast.makeText(getContext(), "Failed to fetch data!", Toast.LENGTH_SHORT).show();
@@ -148,6 +152,17 @@ public class ForecastFragment extends Fragment implements
         }else
             return DependencyInjector.getProtocol();
     }
+
+    @Override
+    public void onForecastButtonClicked(int forcastId) {
+//        Toast.makeText(getContext(), "Button was clicked !", Toast.LENGTH_SHORT).show();
+        Log.i("Button was clicked !",TAG);
+        Intent intent = new Intent(this.getContext(), DetailActivity.class).
+                putExtra(DetailActivity.EXTRA_MSG,mForecastList[forcastId]);
+        startActivity(intent);
+    }
+
+//*********************Async Task Example Not InUse: *********************
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
         private final String TAG = "FetchWeatherTask";
@@ -259,9 +274,6 @@ public class ForecastFragment extends Fragment implements
                     return null;
                 }
                 int cityId = Integer.valueOf(params[0]);
-
-
-//
                 mForecastModel = mIForecastApi.get5DaysForecast(cityId, "metric", 7, "30bf6f95b393edde7a5ae63bc68db92b");
                 ArrayListForecast listForecast = mForecastModel.getList();
                 try {
@@ -286,7 +298,7 @@ public class ForecastFragment extends Fragment implements
                 for (String dayForecastStr : result) {
                     mArrayListDateTime.add(new DateTimeItem(dayForecastStr));
                 }
-                mWheatherAdapter = new WeatherRecyclerViewAdapter(getContext(), mArrayListDateTime);
+                mWheatherAdapter = new WeatherRecyclerViewAdapter(getContext(), (IForecastItemActionListener) this, mArrayListDateTime);
                 mRecyclerView.setAdapter(mWheatherAdapter);
             } else {
                 Toast.makeText(getContext(), "Failed to fetch data!", Toast.LENGTH_SHORT).show();
@@ -295,4 +307,5 @@ public class ForecastFragment extends Fragment implements
 
 
     }
+    //*********************Async Task Example Not InUse: *********************
 }

@@ -13,11 +13,14 @@ import java.util.List;
 public class WeatherRecyclerViewAdapter extends RecyclerView.Adapter<WeatherRecyclerViewAdapter.CustomViewHolder> {
     private List<DateTimeItem> mFeedItemList;
     private Context mContext;
+    private IForecastItemActionListener mListener ;
     // this class will bind the holder with the relevant data object that we want to edit during run time
-    public WeatherRecyclerViewAdapter(Context context, List<DateTimeItem> feedItemList) {
+    public WeatherRecyclerViewAdapter(Context context,IForecastItemActionListener listener,  List<DateTimeItem> feedItemList) {
         mFeedItemList = feedItemList;
+        mListener= listener;
         mContext = context;
     }
+
 
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
@@ -33,7 +36,7 @@ public class WeatherRecyclerViewAdapter extends RecyclerView.Adapter<WeatherRecy
 
 
     @Override
-    public void onBindViewHolder(CustomViewHolder customViewHolder, int position) {
+    public void onBindViewHolder(CustomViewHolder customViewHolder, final int position) {
         DateTimeItem feedItem = mFeedItemList.get(position);
 
         int iResourceId = feedItem.getResourceId();// T he data object return his resource id for img as we go by supporting methods in the data object class ...
@@ -51,6 +54,12 @@ public class WeatherRecyclerViewAdapter extends RecyclerView.Adapter<WeatherRecy
 
         //Setting text view title
         customViewHolder.textView.setText(feedItem.getTitle());
+        customViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onForecastButtonClicked(position);
+            }
+        });
     }
 
     @Override
@@ -68,4 +77,8 @@ public class WeatherRecyclerViewAdapter extends RecyclerView.Adapter<WeatherRecy
             this.textView = (TextView) view.findViewById(R.id.list_item_forecast_textview);
         }
     }
+
+}
+interface IForecastItemActionListener {
+    void onForecastButtonClicked(int forcastId);
 }

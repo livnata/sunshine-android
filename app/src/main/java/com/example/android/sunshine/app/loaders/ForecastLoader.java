@@ -35,7 +35,7 @@ public class ForecastLoader extends AsyncTaskLoader< String[]> {
 
     @Override
     public  String[] loadInBackground() {
-        ForecastModel mForecastModel = null;
+        ForecastModel mForecastModel ;
         String[] forecastList = null;
         try {
 //            if (mIForecastApi == null)
@@ -45,8 +45,8 @@ public class ForecastLoader extends AsyncTaskLoader< String[]> {
 
 
             mForecastModel = mIForecastApi.get5DaysForecast(mCityId, "metric", 7, "30bf6f95b393edde7a5ae63bc68db92b");
-            ArrayListForecast listForecast = mForecastModel.getList();
             try {
+                ArrayListForecast listForecast = mForecastModel.getList();
                 forecastList = getWeatherDataFromJson(listForecast, 5);
             } catch (JSONException t) {
                 Log.d(TAG, "problem during pars and String array creation " + t.getMessage());
@@ -65,7 +65,7 @@ public class ForecastLoader extends AsyncTaskLoader< String[]> {
 
     @Override
     public void deliverResult( String[] data) {
-        mForecastList = data;
+        mForecastList = data;// cache data
         super.deliverResult(data);
     }
 
@@ -74,7 +74,7 @@ public class ForecastLoader extends AsyncTaskLoader< String[]> {
         super.onStartLoading();
         long currentTime = System.currentTimeMillis();
         if ( mForecastList == null ) {
-            updateData(currentTime);
+            updateData(currentTime);// will do force load == doOnBackground
         }else if ( (currentTime+5*60000) >  mLastUpdateTime ) {
             // if it has been more then 5 min since last updated and we want to update
             updateData(currentTime);
